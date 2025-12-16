@@ -6,18 +6,22 @@ use App\Models\Trip;
 use App\Models\Route;
 use App\Models\Transport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\RedirectResponse;
+
 class TripController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->perpage ?? 2;
         $trips = Trip::with(['route','transport'])
             ->withSum('cargo as total_cargo_weight_kg', 'weight_kg')
             ->orderBy('id')
-            ->get();
-
+            ->paginate($perPage)
+            ->withQueryString();
         return view('trips.index', compact('trips'));
     }
 
@@ -78,6 +82,12 @@ class TripController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $trip = Trip::findOrFail($id);
+        if (! Gate::allows('update-trip', $trip)) {
+            $message = 'У вас нет разрешения на редактирование рейса номер ' . $trip->id;
+
+            return redirect()->route('error')->with('message', $message);
+        }
         $validated = $request->validate([
             'route_id'     => ['required','integer','exists:route,id'],
             'transport_id' => ['required','integer','exists:transport,id'],
@@ -85,7 +95,6 @@ class TripController extends Controller
             'arrival_at'   => ['required','date','after:departure_at'],
         ]);
 
-        $trip = Trip::findOrFail($id);
         $trip->update($validated);
 
         return redirect('/trips')->with('ok', 'Рейс обновлён');
@@ -96,6 +105,14 @@ class TripController extends Controller
      */
     public function destroy(string $id)
     {
+        $trip = Trip::findOrFail($id);
+
+        if (! Gate::allows('delete-trip', $trip)) {
+            // сообщение для пользователя
+            $message = 'У вас нет разрешения на удаление рейса номер ' . $trip->id;
+
+            return redirect()->route('error')->with('message', $message);
+        }
         Trip::destroy($id);
         return redirect('/trips')->with('ok', 'Рейс удалён');
     }
