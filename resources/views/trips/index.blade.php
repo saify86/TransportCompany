@@ -1,53 +1,58 @@
-<!doctype html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <title>Рейсы</title>
-    <style>
-        .ok { color: green; margin: 10px 0; }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-<h2>Список рейсов</h2>
+@section('title', 'Рейсы')
 
-<p><a href="{{ url('/trips/create') }}">+ Создать рейс</a></p>
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-uppercase text-warning fw-semibold mb-1">Управление</p>
+        <h1 class="h3 mb-0">Рейсы</h1>
+    </div>
+    <a class="btn btn-warning" href="{{ url('/trips/create') }}">+ Создать рейс</a>
+</div>
 
-@if(session('ok'))
-    <div class="ok">{{ session('ok') }}</div>
-@endif
-
-<table border="1" cellpadding="6">
-    <tr>
-        <td>ID</td>
-        <td>Маршрут</td>
-        <td>Транспорт</td>
-        <td>Отправление</td>
-        <td>Прибытие</td>
-        <td>Сумма груза, кг</td>
-        <td>Действия</td>
-    </tr>
-    @foreach($trips as $t)
-        <tr>
-            <td>{{ $t->id }}</td>
-            <td>{{ $t->route?->name }}</td>
-            <td>{{ $t->transport?->name }}</td>
-            <td>{{ $t->departure_at }}</td>
-            <td>{{ $t->arrival_at }}</td>
-            <td>{{ $t->total_cargo_weight_kg ?? 0 }}</td>
-            <td>
-                <a href="{{ url('/trips/'.$t->id) }}">Открыть</a>
-                &nbsp;|&nbsp;
-                <a href="{{ url('/trips/edit/'.$t->id) }}">Редактировать</a>
-                &nbsp;|&nbsp;
-                <a href="{{ url('/trips/destroy/'.$t->id) }}"
-                   onclick="return confirm('Удалить рейс #{{ $t->id }}?')">Удалить</a>
-            </td>
-        </tr>
-    @endforeach
-</table>
-{{ $trips->links() }}
-</body>
-</html>
-
-
+<div class="card shadow-sm">
+    <div class="card-body">
+        @if($trips->isEmpty())
+            <p class="text-muted mb-0">Рейсы отсутствуют.</p>
+        @else
+            <div class="table-responsive">
+                <table class="table table-dark table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Маршрут</td>
+                            <td>Транспорт</td>
+                            <td>Отправление</td>
+                            <td>Прибытие</td>
+                            <td>Сумма груза, кг</td>
+                            <td>Действия</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($trips as $t)
+                            <tr>
+                                <td>{{ $t->id }}</td>
+                                <td>{{ $t->route?->name }}</td>
+                                <td>{{ $t->transport?->name }}</td>
+                                <td>{{ $t->departure_at }}</td>
+                                <td>{{ $t->arrival_at }}</td>
+                                <td>{{ $t->total_cargo_weight_kg ?? 0 }}</td>
+                                <td class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-light" href="{{ url('/trips/'.$t->id) }}">Открыть</a>
+                                    <a class="btn btn-sm btn-outline-warning" href="{{ url('/trips/edit/'.$t->id) }}">Редактировать</a>
+                                    <a class="btn btn-sm btn-outline-danger" href="{{ url('/trips/destroy/'.$t->id) }}"
+                                       onclick="return confirm('Удалить рейс #{{ $t->id }}?')">Удалить</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-3">
+                {{ $trips->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+</div>
+@endsection
