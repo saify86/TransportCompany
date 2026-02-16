@@ -85,4 +85,18 @@
             </div>
         </div>
     </nav>
+    <form method="get" action="{{ url()->current() }}" class="d-flex align-items-center gap-2 mt-2">
+        @foreach(request()->except(['page','perpage']) as $k => $v)
+            <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+        @endforeach
+
+        <span class="text-secondary small">Элементов на странице:</span>
+        <select name="perpage" class="form-select form-select-sm" style="width:auto">
+            <option value="2" @selected($paginator->perPage() == 2)>2</option>
+            <option value="3" @selected($paginator->perPage() == 3)>3</option>
+            <option value="4" @selected($paginator->perPage() == 4)>4</option>
+        </select>
+        <button class="btn btn-sm btn-outline-tc" type="submit">Изменить</button>
+    </form>
+
 @endif

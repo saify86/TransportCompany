@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::defaultView('pagination::default');
+        //Paginator::defaultView('pagination::default');
+        Paginator::useBootstrapFive();
         Gate::define('delete-trip', function (User $user, Trip $trip) {
             return $user->email === 'alpha@test.com';
         });

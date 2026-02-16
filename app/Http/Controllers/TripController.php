@@ -51,6 +51,7 @@ class TripController extends Controller
         Trip::create($validated);
 
         return redirect('/trips')->with('ok', 'Рейс создан');
+
     }
 
     /**
@@ -98,6 +99,7 @@ class TripController extends Controller
         $trip->update($validated);
 
         return redirect('/trips')->with('ok', 'Рейс обновлён');
+
     }
 
     /**
